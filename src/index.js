@@ -10,7 +10,7 @@ rps = JSON.parse(fs.readFileSync(path.join(__dirname, '../data/variables/rps.jso
 client.login(data.TOKEN)
 
 client.on('ready', () => {
-    console.log(data.LOG_TAG + "ready")
+    console.log(data.LOG_TAG + "ready 2321412")
 })
 
 client.on('message', (message) => {
