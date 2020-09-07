@@ -29,7 +29,7 @@ client.on('message', (message) => {
 //general commands in public channels
 const handleChannelCommand = (content, message)=>{
     let commandArgs = content.split(' ')
-    switch (commandArgs[0]) {
+    switch (commandArgs[0].toLowerCase()) {
         case 'rps':
             if (rps.preGame) {
                 message.channel.send('Only one challenge can be present at the same time, if you wish to cancel a challenge, use >cancel.')
@@ -93,6 +93,27 @@ const handleChannelCommand = (content, message)=>{
                 }
             }
             break
+        case 'scorerps':
+            if (commandArgs[1]){
+                if ('<@!'+message.author+'>' === commandArgs[1]){
+                    return message.channel.send('lol')
+                }
+                const scores = getRPSScores()
+                const score = getRPSscore(scores,'<@!'+message.author+'>', commandArgs[1])
+                if (!score){
+                    message.channel.send('You never played Rock, Paper, Scissors with this player.')
+                }
+                else{
+                    let tempScore1 = '<@!'+message.author+'>' === score.p1? score.scoreP1 : score.scoreP2
+                    let tempScore2 = commandArgs[1] === score.p1? score.scoreP1 : score.scoreP2
+                    let embed = new discord.MessageEmbed().setColor('BLUE').setTitle('Rock, Paper, Scissors')
+                    embed.addField('Scores:', '<@!'+message.author+'>: ' + tempScore1+'\n'+commandArgs[1]+': '+tempScore2)
+                    message.channel.send(embed)
+                }
+            }
+            else{
+                message.channel.send('Please mention the person that you want to check the score of.')
+            }
     }
 }
 
@@ -209,11 +230,15 @@ const getRPSScores = () => {
     }
 }
 
-const findRPSScore = (scores) => {
+const getRPSscore = (scores, p1, p2) =>{
     let temp = scores.find((score)=>{
-        return (rps.initiatingPlayer === score.p1 && rps.pendingPlayer === score.p2) || (rps.initiatingPlayer === score.p2 && rps.pendingPlayer === score.p1)
+        return (p1 === score.p1 && p2 === score.p2) || (p1 === score.p2 && p2 === score.p1)
     })
+    return temp
+}
 
+const findRPSScore = (scores) => {
+    let temp = getRPSscore(score, rps.initiatingPlayer, rps.pendingPlayer)
     return scores.indexOf(temp)
 }
 
