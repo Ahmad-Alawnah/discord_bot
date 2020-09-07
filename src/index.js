@@ -1,4 +1,4 @@
-require('dotenv').config()
+
 const LOG_TAG = '[bomber]: '
 const PREFIX = '>'
 const data = require('../data.json')
@@ -13,7 +13,7 @@ let challengeChannel = undefined
 let pendingPlayerChoice = undefined
 let initiatingPlayerChoice = undefined
 
-client.login(require('../data.env'))
+client.login(data.token)
 
 client.on('ready', () => {
     console.log(LOG_TAG + "ready")
