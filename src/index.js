@@ -145,18 +145,45 @@ const handleDM = (message) => {
 
         if (rps.initiatingPlayerChoice && rps.pendingPlayerChoice) {
             embed = new discord.MessageEmbed().setTitle('Rock, Paper, Scissors!')
+            let scores = getRPSScores()
+            let currentScore = findRPSScore(scores)
+            if (currentScore === -1){
+                currentScore = scores.length
+                scores.push({
+                    p1: rps.initiatingPlayer,
+                    p2: rps.pendingPlayer,
+                    scoreP1: 0,
+                    scoreP2: 0
+                })
+            }
             if (rps.initiatingPlayerChoice == rps.pendingPlayerChoice) {
                 embed.setColor('BLUE').setDescription('Its a tie!')
             }
             else if ((rps.initiatingPlayerChoice == 'Rock' && rps.pendingPlayerChoice == 'Scissors') || (rps.initiatingPlayerChoice == 'Paper' && rps.pendingPlayerChoice == 'Rock') || (rps.initiatingPlayerChoice == 'Scissors' && rps.pendingPlayerChoice == 'Paper')) {
                 embed.setColor('GREEN').setDescription(rps.initiatingPlayer + ' Won!')
+                if (rps.initiatingPlayer === scores[currentScore].p1){
+                    scores[currentScore].scoreP1++
+                }
+                else{
+                    scores[currentScore].scoreP2++
+                }
             }
             else {
                 embed.setColor('RED').setDescription(rps.pendingPlayer + ' Won!')
+                if (rps.pendingPlayer === scores[currentScore].p1){
+                    scores[currentScore].scoreP1++
+                }
+                else{
+                    scores[currentScore].scoreP2++
+                }
             }
+            let tempInitScore = rps.initiatingPlayer === scores[currentScore].p1?scores[currentScore].scoreP1:scores[currentScore].scoreP2
+            let tempPendingScore = rps.pendingPlayer === scores[currentScore].p1?scores[currentScore].scoreP1:scores[currentScore].scoreP2
 
             embed.addField('Result: ', rps.initiatingPlayer + ': ' + rps.initiatingPlayerChoice+'\n'+rps.pendingPlayer+': '+rps.pendingPlayerChoice)
+            embed.addField('Scores:', rps.initiatingPlayer + ': ' + tempInitScore+'\n'+rps.pendingPlayer+': '+tempPendingScore)
             embed.setFooter('GG!')
+            saveRPSScores(scores)
             rps.challengeChannel.send(embed)
             resetRPS()
         }
@@ -173,3 +200,23 @@ const resetRPS = () =>{
     rps.preGame = false
 }
 
+const getRPSScores = () => {
+    try{
+        return JSON.parse(fs.readFileSync(path.join(__dirname, "../data/storage/rpsScores.json")).toString())
+    }
+    catch (e){
+        return []
+    }
+}
+
+const findRPSScore = (scores) => {
+    let temp = scores.find((score)=>{
+        return (rps.initiatingPlayer === score.p1 && rps.pendingPlayer === score.p2) || (rps.initiatingPlayer === score.p2 && rps.pendingPlayer === score.p1)
+    })
+
+    return scores.indexOf(temp)
+}
+
+const saveRPSScores = (scores) =>{
+    fs.writeFileSync(path.join(__dirname, '../data/storage/rpsScores.json'), JSON.stringify(scores))
+}
