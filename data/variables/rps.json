@@ -1,0 +1,9 @@
+{
+    "inGame": false,
+    "preGame": false,
+    "initiatingPlayer": false,
+    "pendingPlayer": false,
+    "challengeChannel": false,
+    "pendingPlayerChoice": false,
+    "initiatingPlayerChoice": false
+}
