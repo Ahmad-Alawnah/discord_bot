@@ -28,6 +28,7 @@ client.on('message', (message) => {
 
 //general commands in public channels
 const handleChannelCommand = (content, message)=>{
+    if (message.author.bot)return
     let commandArgs = content.split(' ')
     switch (commandArgs[0].toLowerCase()) {
         case 'rps':
@@ -114,6 +115,13 @@ const handleChannelCommand = (content, message)=>{
             else{
                 message.channel.send('Please mention the person that you want to check the score of.')
             }
+            break
+        case 'help':
+            displayHelp(commandArgs[1],message)
+            break
+        
+        default: 
+            message.channel.send('Unrecognized command, use >help to display a list of all commands or >help [command-name] to display help for a specific command.')
     }
 }
 
@@ -238,10 +246,31 @@ const getRPSscore = (scores, p1, p2) =>{
 }
 
 const findRPSScore = (scores) => {
-    let temp = getRPSscore(score, rps.initiatingPlayer, rps.pendingPlayer)
+    let temp = getRPSscore(scores, rps.initiatingPlayer, rps.pendingPlayer)
     return scores.indexOf(temp)
 }
 
 const saveRPSScores = (scores) =>{
     fs.writeFileSync(path.join(__dirname, '../data/storage/rpsScores.json'), JSON.stringify(scores))
+}
+
+const displayHelp = (text, message) =>{
+    const rps_help = ">rps <player>: challenge a player for a rock, paper, scissors game by mentioning them."
+    const cancel_help = ">cancel: cancel a pending rock, paper, scissors game."
+    const decline_help = ">decline: decline a pending rock, paper, scissors game."
+    const accept_help = ">accept: accept a pending rock, paper, scissors game."
+    const scorerps_help = ">scorerps <player>: display your score against a specific player by mentioning them."
+    const help_help = ">help [command-name]: displays all commands, if [command-name] is provided, it displays help for that specific command instead."
+    if (!text){
+        return message.channel.send(rps_help+'\n'+cancel_help+'\n'+decline_help+'\n'+accept_help+'\n'+scorerps_help+'\n'+help_help)
+    }
+    switch(text.toLowerCase()){
+        case 'rps': return message.channel.send(rps_help)
+        case 'cancel': return message.channel.send(cancel_help)
+        case 'decline': return message.channel.send(decline_help)
+        case 'accept': return message.channel.send(accept_help)
+        case 'scorerps': return message.channel.send(scorerps_help)
+        case 'help': return message.channel.send(help_help)
+        default: return message.channel.send('Unrecognized command, please try agian.')
+    }
 }
